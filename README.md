@@ -43,7 +43,7 @@
 
 ### 环境准备
 
-- 安装 Go 1.26+、Node 20+、pnpm、Docker（含 Compose）。
+- 安装 Go 1.26.9+、Node 20+、pnpm、Docker（含 Compose）。
 - 首次进入仓库执行：`cd web && pnpm install`。
 - 复制配置：`cp .env.example .env`（可选：`cp config.example.yaml config.yaml`）。
 

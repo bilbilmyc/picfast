@@ -43,7 +43,7 @@ See [TOS configuration](docs/tos.md) for Volcengine TOS setup and parameters.
 
 ### Environment setup
 
-- Install Go 1.26+, Node 20+, pnpm, and Docker (with Compose).
+- Install Go 1.26.9+, Node 20+, pnpm, and Docker (with Compose).
 - First time in this repo, run: `cd web && pnpm install`.
 - Copy config: `cp .env.example .env` (optional: `cp config.example.yaml config.yaml`).
 

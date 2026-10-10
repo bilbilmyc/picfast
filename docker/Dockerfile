@@ -9,7 +9,7 @@ COPY web/ .
 RUN pnpm build && mv dist /web-dist
 
 # ---- Stage 2: Build Backend ----
-FROM golang:1.26-bookworm AS backend-builder
+FROM golang:1.26.9-bookworm AS backend-builder
 
 # Install libvips development headers for CGO build
 RUN apt-get update && apt-get install -y --no-install-recommends \
