@@ -30,12 +30,14 @@
 | 后端 | Go 1.26, Chi Router, pgx/v5, sqlc, JWT |
 | 前端 | React 19, TypeScript, Vite, React Router, Tailwind CSS v4 |
 | 数据库 | PostgreSQL 16 |
-| 存储 | 本地 / S3 兼容 / 七牛 Kodo / 阿里云 OSS / 腾讯云 COS / WebDAV |
+| 存储 | 本地 / S3 兼容 / 火山引擎 TOS / 七牛 Kodo / 阿里云 OSS / 腾讯云 COS / WebDAV |
 | 可观测 | Prometheus、健康检查 |
 
 ## 功能
 
 多用户与游客上传、相册管理、多种存储策略与管理后台；ShareX、API Token、MCP 等集成。完整文档见 **[picfast.dev](https://picfast.dev)**。
+
+火山引擎 TOS 接入步骤与参数见 [TOS 配置说明](docs/tos.md)。
 
 ## 本地开发
 

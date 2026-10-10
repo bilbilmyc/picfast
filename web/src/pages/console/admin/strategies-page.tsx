@@ -29,7 +29,7 @@ interface StrategyForm {
   type: StorageStrategyType
   // local
   localRoot: string
-  // s3
+  // S3-compatible backends (S3 and TOS)
   s3Endpoint: string
   s3Region: string
   s3Bucket: string
@@ -103,6 +103,7 @@ function formToConfigs(form: StrategyForm): Record<string, unknown> {
     case 'local':
       return { root: form.localRoot, url: '/i' }
     case 's3':
+    case 'tos':
       return {
         endpoint: form.s3Endpoint,
         region: form.s3Region,
@@ -163,7 +164,7 @@ function strategyToForm(s: AdminStrategy): StrategyForm {
     type: isStrategyType(s.strategy_type) ? s.strategy_type : 'local',
     localRoot: (c.root as string) || '',
     s3Endpoint: (c.endpoint as string) || '',
-    s3Region: (c.region as string) || 'us-east-1',
+    s3Region: (c.region as string) || (s.strategy_type === 'tos' ? 'cn-beijing' : 'us-east-1'),
     s3Bucket: (c.bucket as string) || '',
     s3AccessKey: (c.access_key as string) || '',
     s3SecretKey: (c.secret_key as string) || '',
@@ -204,6 +205,8 @@ function requiredFieldsComplete(form: StrategyForm): boolean {
       return has(form.localRoot)
     case 's3':
       return has(form.s3Endpoint, form.s3Bucket, form.s3AccessKey, form.s3SecretKey)
+    case 'tos':
+      return has(form.s3Endpoint, form.s3Region, form.s3Bucket, form.s3AccessKey, form.s3SecretKey)
     case 'kodo':
       return has(form.kodoAccessKey, form.kodoSecretKey, form.kodoBucket, form.kodoDomain)
     case 'oss':
@@ -282,6 +285,14 @@ export function AdminStrategiesPage() {
   const update = <K extends keyof StrategyForm>(key: K, value: StrategyForm[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }))
 
+  const updateType = (type: StorageStrategyType) => setForm((prev) => ({
+    ...prev,
+    type,
+    s3Region: !prev.s3Endpoint && (type === 'tos' || type === 's3')
+      ? type === 'tos' ? 'cn-beijing' : 'us-east-1'
+      : prev.s3Region,
+  }))
+
   const inputCls = 'h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition-colors duration-150 focus:border-primary focus:ring-2 focus:ring-primary/20'
 
   return (
@@ -316,7 +327,7 @@ export function AdminStrategiesPage() {
               <label className="mb-1 block text-sm font-medium text-foreground">{t('admin.colType', { defaultValue: '类型' })}</label>
               <Select 
           value={form.type} 
-          onValueChange={(val) => typeof val === 'string' && isStrategyType(val) && update('type', val)}
+          onValueChange={(val) => typeof val === 'string' && isStrategyType(val) && updateType(val)}
           items={Object.fromEntries(storageStrategyTypes.map((type) => [type, storageStrategyLabel(t, type)]))}
               >
                 <SelectTrigger className="h-10 w-full bg-background border-input">
@@ -337,20 +348,21 @@ export function AdminStrategiesPage() {
               </div>
             )}
 
-            {form.type === 's3' && (
+            {(form.type === 's3' || form.type === 'tos') && (
               <>
                 <div className="rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 text-xs text-primary">
                   <strong>{t('admin.fieldEndpoint')}</strong> {t('admin.s3EndpointHint', { defaultValue: '是 S3 API 地址（上传用），' })}
                   <strong>{t('admin.fieldURL')}</strong> {t('admin.s3URLHint', { defaultValue: '是图片公开访问地址（浏览用）。两者通常不同。' })}
+                  {form.type === 'tos' && <p className="mt-1">{t('admin.tosHint')}</p>}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="col-span-2">
                     <label className="mb-1 block text-sm font-medium text-foreground">{t('admin.fieldEndpoint')}</label>
-                    <input value={form.s3Endpoint} onChange={(e) => update('s3Endpoint', e.target.value)} placeholder="https://s3.<region>.amazonaws.com 或 https://s3.example.com" className={inputCls} />
+                    <input value={form.s3Endpoint} onChange={(e) => update('s3Endpoint', e.target.value)} placeholder={form.type === 'tos' ? 'https://tos-s3-cn-beijing.volces.com' : 'https://s3.<region>.amazonaws.com'} className={inputCls} />
                   </div>
                   <div>
                     <label className="mb-1 block text-sm font-medium text-foreground">{t('admin.fieldRegion')}</label>
-                    <input value={form.s3Region} onChange={(e) => update('s3Region', e.target.value)} placeholder="us-east-1 / cn-north-1 / auto" className={inputCls} />
+                    <input value={form.s3Region} onChange={(e) => update('s3Region', e.target.value)} placeholder={form.type === 'tos' ? 'cn-beijing' : 'us-east-1 / cn-north-1 / auto'} className={inputCls} />
                   </div>
                   <div>
                     <label className="mb-1 block text-sm font-medium text-foreground">{t('admin.fieldBucket')}</label>
@@ -477,7 +489,7 @@ export function AdminStrategiesPage() {
               </div>
             )}
 
-            {['s3', 'oss', 'cos', 'kodo', 'webdav'].includes(form.type) && (
+            {['s3', 'tos', 'oss', 'cos', 'kodo', 'webdav'].includes(form.type) && (
               <label className="flex items-start gap-3 rounded-lg border border-border/60 p-3 text-sm text-foreground">
                 <input
                   type="checkbox"

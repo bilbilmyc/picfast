@@ -28,6 +28,7 @@ type StrategyType string
 const (
 	StrategyTypeLocal  StrategyType = "local"
 	StrategyTypeS3     StrategyType = "s3"
+	StrategyTypeTOS    StrategyType = "tos"
 	StrategyTypeKodo   StrategyType = "kodo"
 	StrategyTypeOSS    StrategyType = "oss"
 	StrategyTypeCOS    StrategyType = "cos"

@@ -30,12 +30,14 @@
 | Backend | Go 1.26, Chi Router, pgx/v5, sqlc, JWT |
 | Frontend | React 19, TypeScript, Vite, React Router, Tailwind CSS v4 |
 | Database | PostgreSQL 16 |
-| Storage | Local / S3-compatible / Kodo / OSS / COS / WebDAV |
+| Storage | Local / S3-compatible / Volcengine TOS / Kodo / OSS / COS / WebDAV |
 | Observability | Prometheus metrics, health check |
 
 ## Features
 
 Multi-user and guest uploads, albums, pluggable storage backends, admin dashboard; ShareX, API tokens, and MCP integration. Full docs at **[picfast.dev](https://picfast.dev)**.
+
+See [TOS configuration](docs/tos.md) for Volcengine TOS setup and parameters.
 
 ## Local Development
 

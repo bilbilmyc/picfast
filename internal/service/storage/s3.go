@@ -41,7 +41,12 @@ func NewS3Storage(cfg json.RawMessage) (*S3Storage, error) {
 	if err := json.Unmarshal(cfg, &c); err != nil {
 		return nil, err
 	}
+	return newS3Storage(c), nil
+}
 
+// newS3Storage preserves the legacy S3 defaults while allowing compatible
+// providers to override client options without duplicating object operations.
+func newS3Storage(c domain.S3StrategyConfig, optFns ...func(*s3.Options)) *S3Storage {
 	creds := credentials.NewStaticCredentialsProvider(c.AccessKeyID, c.SecretAccessKey, "")
 
 	region := c.Region
@@ -55,13 +60,13 @@ func NewS3Storage(cfg json.RawMessage) (*S3Storage, error) {
 		BaseEndpoint:         aws.String(c.Endpoint),
 		UsePathStyle:         true,
 		AuthSchemePreference: []string{"sigv4"},
-	})
+	}, optFns...)
 
 	return &S3Storage{
 		client: client,
 		bucket: c.Bucket,
 		url:    c.URL,
-	}, nil
+	}
 }
 
 func (s *S3Storage) Write(ctx context.Context, path string, data []byte, contentType string) error {
