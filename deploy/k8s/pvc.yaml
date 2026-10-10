@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: picfast-data
+  labels:
+    app: picfast
+spec:
+  accessModes:
+    - ReadWriteOnce
+  # Uses the cluster's default StorageClass. Set storageClassName if needed.
+  # storageClassName: YOUR_STORAGE_CLASS
+  resources:
+    requests:
+      storage: 10Gi

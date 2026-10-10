@@ -104,6 +104,8 @@ docker run -d --name picfast --network picfast-net -p 18080:8080 \
 
 可观测性：Docker Compose 默认让 metrics 在容器内 `:9190` 监听，不发布到宿主机；Prometheus 可在同一 Docker 网络抓取 `app:9190/metrics`。通用 Compose、Traefik 模板及 `.env` 示例详见 **[docker/README.md](docker/README.md)**。
 
+Kubernetes 部署使用 [deploy/k8s/](deploy/k8s/) 下的 Deployment、Service、PVC 三个 YAML，环境变量直接写在 Deployment 中，连接已有 PostgreSQL。完整步骤见 [Kubernetes 部署说明](docs/kubernetes.md)。
+
 ## 常用命令
 
 ```bash

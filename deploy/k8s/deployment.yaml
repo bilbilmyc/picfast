@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: picfast
+  labels:
+    app: picfast
+spec:
+  replicas: 1
+  # The data PVC uses ReadWriteOnce; replace the old Pod before mounting it.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: picfast
+  template:
+    metadata:
+      labels:
+        app: picfast
+    spec:
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: picfast
+          # Fork development image; pin a dev-<commit> tag or digest for rollout.
+          image: ghcr.io/bilbilmyc/picfast:dev-main
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: metrics
+              containerPort: 9190
+          # Replace the placeholders before applying. All env is kept inline.
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+            - name: PICFAST_SERVER_PORT
+              value: "8080"
+            - name: PICFAST_SERVER_METRICS_ADDR
+              value: ":9190"
+            - name: PICFAST_SERVER_BASE_URL
+              value: "https://picfast.example.com"
+            - name: PICFAST_SERVER_WEB_DIR
+              value: /web-dist
+            - name: PICFAST_DATABASE_URL
+              value: "postgres://picfast:REPLACE_DB_PASSWORD@REPLACE_DB_HOST:5432/picfast?sslmode=disable"
+            - name: PICFAST_JWT_SECRET
+              value: "REPLACE_WITH_AT_LEAST_32_RANDOM_CHARACTERS"
+            - name: PICFAST_STORAGE_LOCAL_ROOT
+              value: /app/data/uploads
+            - name: PICFAST_STORAGE_THUMBNAIL_DIR
+              value: /app/data/thumbnails
+            - name: PICFAST_APP_NAME
+              value: PicFast
+            - name: PICFAST_APP_ADMIN_EMAIL
+              value: ""
+            - name: PICFAST_APP_ADMIN_PASSWORD
+              value: ""
+            - name: PICFAST_APP_ALLOW_GUEST_UPLOAD
+              value: "false"
+            - name: PICFAST_APP_ALLOW_REGISTRATION
+              value: "false"
+            - name: PICFAST_APP_REQUIRE_EMAIL_VERIFICATION
+              value: "true"
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+          # Database outages should remove readiness, not cause liveness loops.
+          livenessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "2"
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: picfast-data

@@ -104,6 +104,8 @@ Open `http://localhost:18080` and follow the setup wizard. For headless deployme
 
 Observability: Docker Compose listens for metrics on container-local `:9190` without publishing it to the host. Prometheus can scrape `app:9190/metrics` from the same Docker network. See **[docker/README.md](docker/README.md)** for the generic Compose file, Traefik template, and `.env` examples.
 
+Kubernetes manifests are available in [deploy/k8s/](deploy/k8s/) as three YAML files: Deployment, Service, and PVC. Environment variables are inline in the Deployment, and PostgreSQL is provided externally. See the [Kubernetes deployment guide](docs/kubernetes.md).
+
 ## Common Commands
 
 ```bash
