@@ -32,7 +32,7 @@ kubectl port-forward svc/picfast 8080:8080
 
 ## Fork 镜像
 
-本 fork 的 `Fork Development Image` 工作流在 `main` 更新或手动触发时构建 `linux/amd64`、`linux/arm64` 镜像，发布至仓库对应的 GHCR：
+本 fork 的 `Fork Development Image` 工作流在 `main` 更新或手动触发时，分别使用 amd64、arm64 原生 runner 构建镜像，再合并并校验两个架构的镜像清单，发布至仓库对应的 GHCR：
 
 - `ghcr.io/bilbilmyc/picfast:dev-main`：滚动开发标签。
 - `ghcr.io/bilbilmyc/picfast:dev-<完整 commit SHA>`：对应提交的开发标签。
