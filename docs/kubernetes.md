@@ -39,6 +39,15 @@ kubectl port-forward svc/picfast 8080:8080
 
 在 GitHub Actions 中确认镜像工作流完成后再部署。[GHCR 新包默认是私有](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)；公开拉取需要在 GitHub Package 设置中将包设为 Public，私有包则需集群配置镜像拉取凭据。上游 `xbeta/picfast:v0.24.1` 不包含此 fork 的 TOS 支持。
 
+使用私有包时，将有 `read:packages` 权限的 GitHub token 放入本地环境变量 `GHCR_TOKEN`，在应用所在 namespace 创建拉取凭据，然后取消 Deployment 中 `imagePullSecrets` 的注释。该凭据通过命令创建，不增加 YAML 文件；应用环境变量仍全部保留在 Deployment 中。
+
+```bash
+kubectl create secret docker-registry picfast-ghcr \
+  --docker-server=ghcr.io \
+  --docker-username=bilbilmyc \
+  --docker-password="$GHCR_TOKEN"
+```
+
 也可以用现有 Dockerfile 构建到自己的镜像仓库，再替换 Deployment 的 `image`：
 
 ```bash

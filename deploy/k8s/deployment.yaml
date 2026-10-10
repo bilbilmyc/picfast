@@ -17,6 +17,9 @@ spec:
       labels:
         app: picfast
     spec:
+      # For a private GHCR package, create this pull secret and uncomment.
+      # imagePullSecrets:
+      #   - name: picfast-ghcr
       terminationGracePeriodSeconds: 30
       securityContext:
         runAsNonRoot: true
